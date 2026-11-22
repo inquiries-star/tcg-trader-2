@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>TCG Trader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap">
+<style>
+:root{--bg:#f8f6f0;--surf:#fff;--text:#17140d;--onacc:#14110a;--mute:#6c6657;--line:#e7e1d2;--acc:#f9db30;--acct:#6f5a00;--acc2:#f6ecc9;--ok:#12805c;--bad:#c0392b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0a08;--surf:#15130e;--text:#f4efe0;--onacc:#14110a;--mute:#a39b86;--line:#2c271b;--acc:#f9db30;--acct:#f9db30;--acc2:#2b2410;--ok:#3ecf9b;--bad:#ff7a6b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b0a08;--surf:#15130e;--text:#f4efe0;--onacc:#14110a;--mute:#a39b86;--line:#2c271b;--acc:#f9db30;--acct:#f9db30;--acc2:#2b2410;--ok:#3ecf9b;--bad:#ff7a6b;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surf);border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;padding:10px 16px;flex-wrap:wrap}
+.logo{font-weight:800;font-size:19px;letter-spacing:-.3px}.logo span{color:var(--acct)}
+nav{display:flex;gap:6px;margin-left:auto}
+button,input,select,textarea{font:inherit;color:inherit}
+.btn{border:1px solid var(--line);background:var(--surf);padding:8px 14px;border-radius:10px;cursor:pointer}
+.btn.on,.btn.pri{background:var(--acc);border-color:var(--acc);color:var(--onacc)}
+.btn.sm{padding:5px 10px;font-size:13px}.btn.bad{color:var(--bad)}
+main{max-width:1100px;margin:0 auto;padding:16px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.bar input,.bar select,.f input,.f select,.f textarea{padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--surf);width:100%}
+.bar input{flex:1 1 220px;width:auto}.bar select{width:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column}
+.card:hover{border-color:var(--acc)}
+.ph{aspect-ratio:5/7;background:var(--acc2);display:flex;align-items:center;justify-content:center;color:var(--mute);font-size:13px;overflow:hidden;position:relative}
+.ph img{width:100%;height:100%;object-fit:cover}
+.tag{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;padding:2px 8px;border-radius:99px}
+.tag.sold{left:auto;right:8px;background:var(--bad)}
+.cb{padding:10px 12px}.cb h3{margin:0 0 3px;font-size:14.5px;line-height:1.3}
+.price{font-weight:700;font-size:17px}.mute{color:var(--mute);font-size:13px}
+.panel{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:640px;margin:0 auto}
+.f{display:grid;gap:12px}.f label{display:grid;gap:4px;font-size:13px;color:var(--mute)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap}.thumbs img{width:64px;height:90px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:20;display:flex;align-items:center;justify-content:center;padding:16px}
+.mbox{background:var(--surf);border-radius:16px;max-width:760px;width:100%;max-height:92vh;overflow:auto;display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:18px}
+@media(max-width:640px){.mbox{grid-template-columns:1fr}.row2{grid-template-columns:1fr}}
+.mbox .main{width:100%;aspect-ratio:5/7;object-fit:contain;background:var(--acc2);border-radius:12px}
+.empty{text-align:center;color:var(--mute);padding:48px 12px}
+.msg{padding:10px 12px;border-radius:10px;background:var(--acc2);margin-bottom:12px;font-size:14px}
+.li{display:flex;gap:12px;align-items:center;background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px}
+.li img,.li .z{width:48px;height:67px;object-fit:cover;border-radius:6px;background:var(--acc2);flex:none}
+.li .g{flex:1;min-width:0}.li .a{display:flex;gap:6px;flex-wrap:wrap}
+.mg{display:grid;grid-template-columns:260px 1fr;gap:14px;max-width:1000px;margin:0 auto}
+@media(max-width:700px){.mg{grid-template-columns:1fr}}
+.tl{display:grid;gap:8px;align-content:start}
+.ti{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:10px;cursor:pointer}
+.ti.on{border-color:var(--acc)}.ti b{display:block;font-size:14px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--acc);margin-right:6px}
+.cv{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px;min-height:360px}
+.bx{display:flex;flex-direction:column;gap:8px;overflow:auto;max-height:55vh;flex:1}
+.bb{max-width:80%;padding:8px 12px;border-radius:14px;background:var(--acc2);white-space:pre-wrap;word-break:break-word;align-self:flex-start}
+.bb.me{background:var(--acc);color:var(--onacc);align-self:flex-end}
+.of{border:1px dashed var(--acc);border-radius:12px;padding:10px;font-size:14px;align-self:stretch}
+.chip{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;background:var(--acc2)}
+.chip.accepted{background:var(--ok);color:#fff}.chip.declined,.chip.withdrawn{background:var(--bad);color:#fff}
+.sn{display:flex;gap:8px}.sn textarea{flex:1;padding:9px;border:1px solid var(--line);border-radius:10px;background:var(--surf);resize:none}
+.hero{border-radius:20px;padding:36px 20px 28px;background:linear-gradient(130deg,#0d0d0d,#f9db30);color:#fff;text-align:center;margin-bottom:24px}
+.hero h1{font-size:clamp(26px,5vw,40px);margin:0 0 10px;letter-spacing:-.5px;line-height:1.15}.hero p{max-width:620px;margin:0 auto 22px;opacity:.93}
+.fan{display:flex;justify-content:center;padding-left:28px}
+.fan svg{width:96px;height:auto;margin-left:-28px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35))}
+.fan svg:nth-child(1){transform:rotate(-12deg)}.fan svg:nth-child(2){transform:translateY(-10px)}.fan svg:nth-child(3){transform:rotate(12deg)}
+.fan.big svg{width:140px}
+.hh{color:#fff}.hhi{max-width:1100px;margin:0 auto;padding:20px 16px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.hh h1{margin:4px 0;font-size:28px}.hh p{margin:0 0 8px;max-width:520px;opacity:.93}.st{font-size:14px}.st b{margin-left:12px}.st b:first-child{margin-left:0}.hh a{color:inherit}
+a.hc{text-decoration:none;color:inherit}
+.hca{aspect-ratio:5/6;display:flex;align-items:center;justify-content:center;background:linear-gradient(120deg,var(--a),var(--b));padding:16px}.hca svg{height:100%;width:auto;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35))}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.steps div{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:16px}.steps b{display:block;margin-bottom:4px}
+.chip.completed,.chip.released{background:var(--ok);color:#fff}
+.chip.cancelled,.chip.disputed,.chip.forfeited{background:var(--bad);color:#fff}
+.chip.held{background:var(--acc);color:#fff}
+.trk{display:grid;gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.trk input,.trk select,.f select{padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--surf)}
+
+/* ---- visual refresh: live background, glass header, richer cards ---- */
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+h1,h2,h3,.logo,.price{font-family:"Space Grotesk",Inter,system-ui,sans-serif;text-wrap:balance}
+#bgfx{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;display:block}
+main{position:relative;z-index:1}
+header{background:color-mix(in srgb,var(--surf) 78%,transparent);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4)}
+.card{transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;box-shadow:0 1px 2px rgba(10,20,30,.06)}
+.card:hover{transform:translateY(-4px);box-shadow:0 14px 28px -10px rgba(10,20,30,.35)}
+.panel,.steps div,.li,.ti,.cv{box-shadow:0 1px 2px rgba(10,20,30,.05)}
+.btn{transition:transform .12s ease,background .15s ease,border-color .15s ease}
+.btn:hover{border-color:var(--acct)}.btn.pri:hover{filter:brightness(1.08)}.btn:active{transform:translateY(1px)}
+.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.card:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.hero{position:relative;overflow:hidden;background:linear-gradient(130deg,rgba(10,10,10,.96) 45%,rgba(249,219,48,.92) 140%);box-shadow:0 20px 40px -22px rgba(10,10,10,.6)}
+.hero::after{content:"";position:absolute;inset:-40% -10% auto auto;width:60%;aspect-ratio:1;background:radial-gradient(closest-side,rgba(255,255,255,.22),transparent);pointer-events:none}
+.hh{box-shadow:0 10px 30px -18px rgba(0,0,0,.5)}
+@media (prefers-reduced-motion:reduce){.card,.btn{transition:none}.card:hover{transform:none}}
+.hci{max-width:100%;max-height:100%;object-fit:contain;border-radius:9px;box-shadow:0 10px 22px rgba(0,0,0,.45)}
+
+/* phone fit: nav wraps instead of widening the page */
+nav{flex-wrap:wrap;min-width:0;max-width:100%}
+@media(max-width:700px){header{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}nav{margin-left:0;width:100%}nav .btn{padding:7px 11px;font-size:14px}}
+html,body{overflow-x:hidden}
+
+/* hero carousel */
+.car{position:relative;border-radius:20px;overflow:hidden;margin-bottom:24px;box-shadow:0 20px 40px -22px rgba(0,0,0,.6);touch-action:pan-y}
+.car-track{display:flex;transition:transform .55s cubic-bezier(.3,.7,.2,1)}
+.slide{flex:0 0 100%;min-width:0;display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:center;padding:34px 64px 58px;min-height:330px;color:#fff;position:relative;overflow:hidden}
+.slide::after{content:"";position:absolute;inset:-40% -10% auto auto;width:55%;aspect-ratio:1;background:radial-gradient(closest-side,rgba(255,255,255,.22),transparent);pointer-events:none}
+.slide .eb{font-size:12px;letter-spacing:.12em;text-transform:uppercase;opacity:.85;margin:0 0 8px}
+.slide h1{font-size:clamp(26px,5vw,42px);margin:0 0 8px;line-height:1.1}
+.slide p{margin:0 0 18px;max-width:440px;opacity:.95}
+.slide .go{display:inline-block;background:#fff;color:#111;text-decoration:none;font-weight:600;padding:10px 18px;border-radius:10px}
+.slide .go:hover{filter:brightness(.93)}
+.slide .vis{display:flex;justify-content:center;align-items:center;min-width:0;position:relative;z-index:1}
+.slide .vis .fan svg{width:110px}
+.slide .vis .slimg{max-height:260px;max-width:100%;border-radius:10px;box-shadow:0 14px 28px rgba(0,0,0,.45);transform:rotate(4deg)}
+.car-arrow{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:0;background:rgba(0,0,0,.4);color:#fff;font-size:20px;line-height:1;cursor:pointer;z-index:2}
+.car-arrow:hover{background:rgba(0,0,0,.6)}.car-arrow.l{left:12px}.car-arrow.r{right:12px}
+.car-dots{position:absolute;left:0;right:0;bottom:16px;display:flex;justify-content:center;gap:8px;z-index:2}
+.car-dots button{width:9px;height:9px;padding:0;border-radius:99px;border:0;background:rgba(255,255,255,.5);cursor:pointer;transition:width .2s,background .2s}
+.car-dots button.on{width:26px;background:#fff}
+.car-arrow:focus-visible,.car-dots button:focus-visible,.slide .go:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@media(max-width:700px){.slide{grid-template-columns:1fr;padding:26px 20px 56px;min-height:0;text-align:left}.slide .vis{order:-1}.slide .vis .fan svg{width:78px}.slide .vis .slimg{max-height:170px}.car-arrow{display:none}}
+@media (prefers-reduced-motion:reduce){.car-track{transition:none}}
+
+/* account, earnings, listing stats */
+.at{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.tile{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:14px;min-width:0}
+.tile b{display:block;font:700 24px "Space Grotesk",Inter,system-ui,sans-serif;margin-top:2px}
+.tile .mute{font-size:12.5px}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--surf)}
+.tbl{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+.tbl th,.tbl td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);font-weight:600}
+.tbl tr:last-child td{border-bottom:0}.tbl td.n,.tbl th.n{text-align:right;font-variant-numeric:tabular-nums}
+.sw{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line)}
+.sw:last-child{border-bottom:0}.sw input{width:20px;height:20px;accent-color:var(--acc)}
+.sw span{min-width:0}.sw small{display:block;color:var(--mute);font-size:12.5px}
+.pm{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--line)}
+.stats{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.stats span{font-size:12px;background:var(--acc2);padding:2px 8px;border-radius:99px;white-space:nowrap}
+.sect{max-width:860px;margin:0 auto}.sect h3{margin:18px 0 8px}
+.todo{display:grid;gap:8px}.todo div{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+
+</style>
+</head>
+<body>
+<canvas id="bgfx" aria-hidden="true"></canvas>
+<header>
+  <a href="#" class="logo" style="text-decoration:none;color:inherit" onclick="tab='browse';openT=null;render()">TCG <span>Trader</span> <span class="mute" style="font-weight:500">· buy, sell &amp; trade</span></a>
+  <nav>
+    <button class="btn on" data-t="browse" data-h>Marketplace</button>
+    <button class="btn" data-t="board" data-h>Community</button>
+    <button class="btn" data-t="wants" data-h>Want list</button>
+    <button class="btn" data-t="sell" data-h>Sell</button>
+    <button class="btn" data-t="mine" data-h>My listings</button>
+    <button class="btn" data-t="msgs" id="mb">Messages</button>
+    <button class="btn" data-t="acct" id="ab">Account</button>
+  </nav>
+  <div id="who"></div>
+</header>
+<div id="hhead"></div>
+<main id="app"><div class="empty">Loading…</div></main>
+<div id="modal"></div>
+<script>
+let hub=null,tab='browse',openT=null,aid=0,rt=0,rateCache={};
+const HUBS=[
+{s:'pokemon',g:'Pokémon',img:'img/pokemon-tile.jpg',ink:'#14110a',ac:['#f9db30','#14110a'],c:['#f9db30','#f9db30'],t:'Buy, Sell, Trade, Chat and more all rarities and Sealed Products'},
+{s:'onepiece',g:'One Piece',c:['#e76f51','#1d3557'],t:'Leaders, alt arts and set completions for the crew.'},
+{s:'magic',g:'Magic: The Gathering',c:['#7b3fa0','#23233f'],t:'Singles, staples and sealed finds for every format.'},
+{s:'yugioh',g:'Yu-Gi-Oh!',c:['#b8860b','#3d2c8d'],t:'Duelists swapping rares, staples and collector pieces.'},
+{s:'riftbound',g:'Riftbound',c:['#0f6e8c','#0a1f44'],t:'Champions, runes and battlefield-ready decks from the League of Legends TCG.'},
+{s:'lorcana',g:'Disney Lorcana',c:['#2a9d8f','#264653'],t:'Inkable cards, enchanted rarities and set chases.'},
+{s:'gundam',g:'Gundam',c:['#d62828','#1d3557'],t:'Units, pilots and bases from the Gundam Card Game.'},
+{s:'other',g:'Other TCG',c:['#5c677d','#2b2d42'],t:'Every other trading card game finds a home here.'}];
+const hubFromHash=()=>{const h=HUBS.find(x=>x.s===location.hash.slice(1));return h?h.g:null};
+window.addEventListener('hashchange',()=>{hub=hubFromHash();tab='browse';openT=null;scrollTo(0,0);render()});
+function syncNav(){document.querySelectorAll('nav button').forEach(b=>{if(b.hasAttribute('data-h'))b.hidden=!hub;b.classList.toggle('on',b.dataset.t===tab)})}
+function shape(k){return [`<circle cx="50" cy="59" r="18" fill="rgba(255,255,255,.55)"/><circle cx="50" cy="59" r="9" fill="rgba(255,255,255,.9)"/>`,`<polygon points="50,40 55,54 70,54 58,63 62,78 50,69 38,78 42,63 30,54 45,54" fill="rgba(255,255,255,.8)"/>`,`<polygon points="50,38 72,59 50,80 28,59" fill="rgba(255,255,255,.75)"/><polygon points="50,48 62,59 50,70 38,59" fill="rgba(255,255,255,.4)"/>`][k%3]}
+function art(h,k){const id='ga'+(++aid);return `<svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${(h.ac||h.c)[0]}"/><stop offset="1" stop-color="${(h.ac||h.c)[1]}"/></linearGradient></defs><rect x="2" y="2" width="96" height="136" rx="8" fill="#fff" stroke="rgba(0,0,0,.25)"/><rect x="7" y="7" width="86" height="126" rx="5" fill="url(#${id})"/><rect x="12" y="12" width="76" height="12" rx="3" fill="rgba(255,255,255,.85)"/><rect x="12" y="28" width="76" height="62" rx="4" fill="rgba(255,255,255,.18)" stroke="rgba(255,255,255,.7)"/>${shape(k)}<rect x="12" y="96" width="76" height="30" rx="3" fill="rgba(255,255,255,.85)"/><rect x="16" y="101" width="50" height="3" rx="1.5" fill="rgba(0,0,0,.35)"/><rect x="16" y="108" width="60" height="3" rx="1.5" fill="rgba(0,0,0,.2)"/><rect x="16" y="115" width="40" height="3" rx="1.5" fill="rgba(0,0,0,.2)"/></svg>`}
+function compress(file){
+  return new Promise((res,rej)=>{
+    const img=new Image(),url=URL.createObjectURL(file);
+    img.onload=()=>{
+      const sc=Math.min(1,1100/Math.max(img.width,img.height));
+      const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      c.toBlob(b=>b?res(b):rej(new Error('bad image')),'image/jpeg',.85);URL.revokeObjectURL(url);
+    };
+    img.onerror=()=>rej(new Error('bad image'));img.src=url;
+  });
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;render()});
+// ---- TCG Trader frontend (talks to /api/*) ----
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>'$'+Number(n||0).toFixed(2);
+const photo=id=>'/api/photo/'+id;
+const GAMES=HUBS.map(h=>h.g);
+const SETS={
+'Pokémon':['Mega Evolution: Delta Reign','Mega Evolution: Pitch Black','Mega Evolution: Chaos Rising','Mega Evolution: Perfect Order','Mega Evolution: Ascended Heroes','Mega Evolution: Phantasmal Flames','Mega Evolution','Black Bolt','White Flare','Destined Rivals','Journey Together','Prismatic Evolutions','Surging Sparks','Stellar Crown','Shrouded Fable','Twilight Masquerade','Temporal Forces','Paldean Fates','Paradox Rift','151','Obsidian Flames','Paldea Evolved','Scarlet & Violet Base Set','Crown Zenith','Silver Tempest','Lost Origin','Pokémon GO','Astral Radiance','Brilliant Stars','Fusion Strike','Celebrations','Evolving Skies','Chilling Reign','Battle Styles','Shining Fates','Vivid Voltage','Champion’s Path','Darkness Ablaze','Rebel Clash','Sword & Shield Base Set','Cosmic Eclipse','Hidden Fates','Unified Minds','Unbroken Bonds','Detective Pikachu','Team Up','Lost Thunder','Dragon Majesty','Celestial Storm','Forbidden Light','Ultra Prism','Crimson Invasion','Shining Legends','Burning Shadows','Guardians Rising','Sun & Moon Base Set','Evolutions','Generations','Steam Siege','Fates Collide','BREAKpoint','BREAKthrough','Ancient Origins','Roaring Skies','Double Crisis','Primal Clash','Phantom Forces','Furious Fists','Flashfire','XY Base Set','Legendary Treasures','Plasma Blast','Plasma Freeze','Plasma Storm','Boundaries Crossed','Dragons Exalted','Dark Explorers','Next Destinies','Noble Victories','Emerging Powers','Black & White Base Set','Call of Legends','Triumphant','Undaunted','Unleashed','HeartGold & SoulSilver','Base Set','Jungle','Fossil','Base Set 2','Team Rocket','Gym Heroes','Gym Challenge','Neo Genesis','Neo Discovery','Neo Revelation','Neo Destiny','Legendary Collection','Expedition Base Set','Aquapolis','Skyridge'],
+'Magic: The Gathering':['Star Trek','Reality Fracture','The Hobbit','Marvel Super Heroes','Secrets of Strixhaven','Teenage Mutant Ninja Turtles','Lorwyn Eclipsed','Avatar: The Last Airbender','Final Fantasy','Edge of Eternities','Tarkir: Dragonstorm','Aetherdrift','Foundations','Innistrad Remastered','Duskmourn: House of Horror','Bloomburrow','Modern Horizons 3','Outlaws of Thunder Junction','Murders at Karlov Manor','The Lost Caverns of Ixalan','Wilds of Eldraine','Lord of the Rings: Tales of Middle-earth','March of the Machine','Phyrexia: All Will Be One','The Brothers’ War','Dominaria United','Streets of New Capenna','Kamigawa: Neon Dynasty','Innistrad: Crimson Vow','Innistrad: Midnight Hunt','Adventures in the Forgotten Realms','Strixhaven: School of Mages','Modern Horizons 2','Kaldheim','Zendikar Rising','Core Set 2021','Ikoria: Lair of Behemoths','Theros Beyond Death','Throne of Eldraine','Core Set 2020','War of the Spark','Ravnica Allegiance','Guilds of Ravnica','Core Set 2019','Dominaria','Rivals of Ixalan','Ixalan','Hour of Devastation','Amonkhet','Aether Revolt','Kaladesh','Eldritch Moon','Shadows over Innistrad','Oath of the Gatewatch','Battle for Zendikar','Magic Origins','Dragons of Tarkir','Fate Reforged','Khans of Tarkir','Journey into Nyx','Born of the Gods','Theros','Dragon’s Maze','Gatecrash','Return to Ravnica','Avacyn Restored','Dark Ascension','Innistrad','Alpha','Beta','Unlimited','Revised','Commander (any)','Masters / Remastered (any)','Secret Lair (any)'],
+'Yu-Gi-Oh!':['Glorious Victors','Magnificent Maestros','Beyond the Brave','Magnificent Monsters','Chaos Origins','Battles of Legend: Glorious Gallery','Blazing Dominion','Rarity Collection 5','Maze of Muertos','Burst Protocol','Spirit Charmers','Legendary Modern Decks 2026','Limited Pack World Championship 2026','Legendary Arc-V Decks','Alliance Insight','Supreme Darkness','Rage of the Abyss','Crossover Breakers','Justice Hunters','Age of Overlord','Duelist Nexus','Cyberstorm Access','Phantom Nightmare','Legacy of Destruction','Valiant Smashers','Photon Hypernova','Battle of Chaos','Darkwing Blast','Ancient Guardians','Maze of Memories','Power of the Elements','Wild Survivors','Lightning Overdrive','Burst of Destiny','Brothers of Legend','Genesis Impact','Ghosts From the Past','Fusion Enforcers','Eternity Code','Dawn of Majesty','Ignition Assault','Chaos Impact','Rise of the Duelist','Soul Fusion','Flames of Destruction','Ancient Prophecy','Extreme Force','Dimension Force','Circuit Break','Cybernetic Horizon','Savage Strike','Code of the Duelist','Raging Tempest','Shining Victories','Spirit Warriors','Dark Neostorm','Legendary Duelists (any)','Structure Deck (any)','Speed Duel (any)','Legend of Blue Eyes White Dragon','Metal Raiders','Spell Ruler','Pharaoh’s Servant','Labyrinth of Nightmare','Legacy of Darkness','Invasion of Chaos','Cyberdark Impact','Force of the Breaker','Tactical Evolution','Starstrike Blast','Crimson Crisis','Hidden Arsenal (any)','Duelist Pack (any)'],
+'Disney Lorcana':['Hyperia City','Attack of the Vine!','Wilds Unknown','Winterspell','Whispers in the Well','Fabled','Reign of Jafar','Archazia’s Island','Azurite Sea','Shimmering Skies','Ursula’s Return','Into the Inklands','Rise of the Floodborn','The First Chapter','Illumineer’s Quest: The Great Hunny Rescue','Illumineer’s Quest: Palace Heist','Illumineer’s Quest: Deep Trouble','Promo'],
+'One Piece':['OP-16 The Time of Battle','OP-15 Adventure on Kami’s Island','EB-03 One Piece Heroines Edition','OP-14 The Azure Sea’s Seven','OP-13 Carrying On His Will','PRB-02 One Piece Card The Best vol.2','OP-12 Legacy of the Master','OP-11 A Fist of Divine Speed','EB-02 Anime 25th Collection','OP-10 Royal Blood','OP-09 Emperors in the New World','PRB-01 One Piece Card The Best','OP-08 Two Legends','OP-07 500 Years in the Future','EB-01 Memorial Collection','OP-06 Wings of the Captain','OP-05 Awakening of the New Era','OP-04 Kingdoms of Intrigue','OP-03 Pillars of Strength','OP-02 Paramount War','OP-01 Romance Dawn','Starter Deck (any)','Promo'],
+'Riftbound':['Radiance','Vendetta','Unleashed','Spiritforged','Origins','Proving Grounds','Promo'],
+'Gundam':['GD05 Freedom Ascension','GD04 Phantom Aria','GD03 Steel Requiem','GD02 Dual Impact','GD01 Newtype Rising','Starter Deck (any)','Promo'],
+'Other TCG':[]};
+function setsFor(g){const l=SETS[g]||[];return [...l,'Other / not listed']}
+
+const CONDS=["Near Mint","Lightly Played","Moderately Played","Heavily Played","Damaged","Graded (PSA/BGS/CGC)"];
+const FIELD='padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--surf)';
+let me=null,signedIn=false,stats={},tl=[],cur=null,mtext='',sig='';
+const CONDS_S=["Factory sealed","Sealed, box damaged","Opened or incomplete"];
+const PTYPES=["Booster box","Booster pack","Booster bundle","Elite trainer or collection box","Starter or structure deck","Tin or mini tin","Case","Other sealed product"];
+const isSealed=i=>i.kind==='sealed';
+const F={q:'',kind:'All',sort:'new',prod:'All'};
+
+async function api(path,o={}){
+  const h={'x-requested-with':'tt'};let body;
+  if(o.raw){h['content-type']=o.raw.type||'image/jpeg';body=o.raw}
+  else if(o.body){h['content-type']='application/json';body=JSON.stringify(o.body)}
+  const r=await fetch('/api'+path,{method:o.method||'GET',headers:h,body,credentials:'same-origin'});
+  let d={};try{d=await r.json()}catch{}
+  if(!r.ok){const e=new Error(d.error||'Something went wrong');e.status=r.status;throw e}
+  return d;
+}
+const closeM=()=>{$('#modal').innerHTML=''};
+const priceOf=i=>i.type==='trade'?'Trade only':money(i.price);
+const ratingText=s=>s&&s.rating?`· ★ ${s.rating} (${s.count} trade${s.count>1?'s':''})`:'· New trader';
+
+// ---------- accounts ----------
+async function loadMe(){try{const d=await api('/me');signedIn=d.signedIn;me=d.user}catch{signedIn=false;me=null}whoUI()}
+async function loadStats(){try{stats=(await api('/stats')).games}catch{}}
+function whoUI(){
+  $('#who').innerHTML=!signedIn?'<button class="btn sm pri" id="si">Sign in</button>'
+    :me?`<span class="mute">${esc(me.name)}</span> <button class="btn sm" id="so">Sign out</button>`
+    :'<button class="btn sm pri" id="si">Finish sign-up</button>';
+  const si=$('#si');if(si)si.onclick=()=>signedIn?profileModal():authModal();
+  const so=$('#so');if(so)so.onclick=async()=>{try{await api('/auth/logout',{method:'POST',body:{}})}catch{}me=null;signedIn=false;tl=[];cur=null;whoUI();render()};
+}
+const need=()=>{if(!signedIn){authModal();return false}if(!me){profileModal();return false}return true};
+function authModal(mode='login'){
+  const su=mode==='signup';
+  $('#modal').innerHTML=`<div class="modal" id="mo"><div class="panel" style="max-width:380px;width:100%"><div class="f"><h2 style="margin:0">${su?'Create your account':'Sign in'}</h2>
+  <label>Email<input id="ae" type="email" autocomplete="email"></label>
+  <label>Password${su?' (8+ characters)':''}<input id="ap" type="password" autocomplete="${su?'new-password':'current-password'}"></label>
+  <div class="mute" id="am"></div><button class="btn pri" id="ag">${su?'Create account':'Sign in'}</button>
+  <button class="btn sm" id="as">${su?'I already have an account':'Create an account'}</button><button class="btn sm" id="ac">Cancel</button></div></div></div>`;
+  $('#ac').onclick=closeM;$('#as').onclick=()=>authModal(su?'login':'signup');
+  $('#ag').onclick=async()=>{
+    const am=t=>{$('#am').textContent=t};
+    $('#ag').disabled=true;
+    try{
+      await api('/auth/'+(su?'signup':'login'),{method:'POST',body:{email:$('#ae').value,password:$('#ap').value}});
+      await loadMe();
+      if(signedIn){closeM();if(!me)profileModal();render();return}
+      am(su?'Account created. Check your email to confirm it, then sign in.':'Signed in.');
+    }catch(e){am(e.message)}
+    $('#ag').disabled=false;
+  };
+}
+function profileModal(){
+  $('#modal').innerHTML=`<div class="modal"><div class="panel" style="max-width:380px;width:100%"><div class="f"><h2 style="margin:0">Choose a display name</h2>
+  <div class="mute">This is the name other traders see on your listings, messages and ratings.</div>
+  <label>Display name<input id="pn" maxlength="30" value="${esc(me?me.name:'')}"></label><div class="mute" id="pm"></div>
+  <button class="btn pri" id="pg">Save</button></div></div></div>`;
+  $('#pg').onclick=async()=>{try{await api('/profile',{method:'POST',body:{name:$('#pn').value}});await loadMe();closeM();render()}catch(e){$('#pm').textContent=e.message}};
+}
+
+// ---------- shell ----------
+function hubBanner(){
+  const h=HUBS.find(x=>x.g===hub);if(!h)return '';
+  const s=stats[hub]||{};
+  return `<div class="hh" style="background:linear-gradient(120deg,${h.c[0]},${h.c[1]});${h.ink?`color:${h.ink}`:''}"><div class="hhi"><div><a href="#">All Communities</a> / ${esc(h.g)}<h1>${esc(h.g)} Community</h1><p>${esc(h.t)}</p><div class="st"><b>${s.listings||0}</b> listings <b>${s.sellers||0}</b> sellers <b>${s.posts||0}</b> posts</div></div><div class="fan">${art(h,0)}${art(h,1)}${art(h,2)}</div></div></div>`;
+}
+
+let heroI=0,heroT=0;
+function heroHtml(){
+  const sl=HUBS.map((h,x)=>`<div class="slide" role="group" aria-roledescription="slide" aria-label="${x+1} of ${HUBS.length}" style="background:linear-gradient(120deg,${h.c[0]},${h.c[1]});${h.ink?`color:${h.ink}`:''}"><div><div class="eb">Buy, sell &amp; trade</div><h1>${esc(h.g)}</h1><p>${esc(h.t)}</p><a class="go" href="#${h.s}">Enter the ${esc(h.g)} Community</a></div><div class="vis">${h.img?`<img class="slimg" src="${h.img}" alt="">`:`<div class="fan">${art(h,0)}${art(h,1)}${art(h,2)}</div>`}</div></div>`).join('');
+  return `<section class="car" aria-roledescription="carousel" aria-label="Trading card game communities"><div class="car-track">${sl}</div><button class="car-arrow l" aria-label="Previous game">‹</button><button class="car-arrow r" aria-label="Next game">›</button><div class="car-dots">${HUBS.map((h,x)=>`<button aria-label="Show ${esc(h.g)}"></button>`).join('')}</div></section>`;
+}
+function initHero(app){
+  clearInterval(heroT);
+  const car=app.querySelector('.car');if(!car)return;
+  const tr=car.querySelector('.car-track'),dots=[...car.querySelectorAll('.car-dots button')],n=dots.length;
+  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  let hold=false;
+  const go=i=>{heroI=(i+n)%n;tr.style.transform=`translateX(-${heroI*100}%)`;dots.forEach((d,k)=>{d.classList.toggle('on',k===heroI);d.setAttribute('aria-current',k===heroI?'true':'false')})};
+  car.querySelector('.car-arrow.l').onclick=()=>go(heroI-1);
+  car.querySelector('.car-arrow.r').onclick=()=>go(heroI+1);
+  dots.forEach((d,k)=>d.onclick=()=>go(k));
+  car.addEventListener('mouseenter',()=>hold=true);car.addEventListener('mouseleave',()=>hold=false);
+  car.addEventListener('focusin',()=>hold=true);car.addEventListener('focusout',()=>hold=false);
+  let sx=null;
+  car.addEventListener('pointerdown',e=>{sx=e.clientX;hold=true});
+  car.addEventListener('pointerup',e=>{if(sx!==null&&Math.abs(e.clientX-sx)>40)go(heroI+(e.clientX<sx?1:-1));sx=null;setTimeout(()=>hold=false,3000)});
+  const prev=tr.style.transition;tr.style.transition='none';go(heroI);requestAnimationFrame(()=>{tr.style.transition=prev});
+  if(!reduce)heroT=setInterval(()=>{if(!document.body.contains(car)){clearInterval(heroT);return}if(!hold&&!document.hidden)go(heroI+1)},5000);
+}
+function renderHome(app){
+  app.innerHTML=`${heroHtml()}
+  <h2>Pick your Community</h2><div class="grid">${HUBS.map((h,x)=>`<a class="card hc" href="#${h.s}" style="--a:${h.c[0]};--b:${h.c[1]}"><div class="hca">${h.img?`<img class="hci" src="${h.img}" alt="Umbreon VMAX card">`:art(h,x)}</div><div class="cb"><h3>${esc(h.g)}</h3><div class="mute">${esc(h.t)}</div><div class="mute"><b>${(stats[h.g]||{}).listings||0}</b> listings</div></div></a>`).join('')}</div>
+  <h2 style="margin-top:28px">How it works</h2><div class="steps"><div><b>1. Create an account</b>Sign up for free in a few seconds, then pick the game community you play.</div><div><b>2. List a card or sealed product</b>Add condition photos, a price and your shipping cost, or mark it open to trades.</div><div><b>3. Message the other trader</b>Ask questions or send a trade offer right from the listing.</div><div><b>4. Pay your own shipping on trades</b>Each trader pays the shipping on the card they send.</div></div>
+  <p class="mute" style="margin-top:28px">Card artwork is original illustration, not real cards, and TCG Trader isn’t affiliated with any game publisher.</p>`;
+  initHero(app);
+}
+async function render(){
+  const t=++rt;syncNav();
+  const app=$('#app');
+  loadStats().then(()=>{if(t!==rt)return;if(tab!=='acct')$('#hhead').innerHTML=hubBanner();if(!hub&&tab!=='msgs'&&tab!=='acct')renderHome(app)});
+  if(!hub&&tab!=='msgs'&&tab!=='acct'){$('#hhead').innerHTML='';renderHome(app);return}
+  $('#hhead').innerHTML=tab==='acct'?'':hubBanner();
+  const view={browse:vBrowse,sell:vSell,mine:vMine,msgs:vMsgs,acct:vAccount,board:vBoard,wants:vWants}[tab]||vBrowse;
+  try{await view(app,t)}catch(e){if(t===rt)app.innerHTML=`<div class="empty">${esc(e.message)}</div>`}
+}
+const loading=app=>{app.innerHTML='<div class="empty">Loading…</div>'};
+const signInPrompt=app=>{app.innerHTML='<div class="empty">Sign in to use this part of TCG Trader.</div>';need()};
+
+// ---------- marketplace ----------
+function cardHtml(i){
+  return `<div class="card" data-id="${esc(i.id)}"><div class="ph"><img src="${photo(i.photos[0])}" alt="" loading="lazy"><span class="tag">${esc(i.game)}${isSealed(i)?' · Sealed':''}</span>${i.type!=='sale'?`<span class="tag sold" style="background:var(--acc)">${i.type==='trade'?'Trade only':'Trade ok'}</span>`:''}</div>
+  <div class="cb"><h3>${esc(i.title)}</h3><div class="price">${priceOf(i)}</div><div class="mute">+ ${i.shipping>0?money(i.shipping)+' shipping':'free shipping'}</div><div class="mute">${isSealed(i)&&i.productType?esc(i.productType)+' · ':''}${esc(i.condition)} · ${esc(i.seller.name)}</div></div></div>`;
+}
+async function vBrowse(app,t){
+  loading(app);
+  const {items}=await api('/listings?game='+encodeURIComponent(hub));if(t!==rt)return;
+  app.innerHTML=`<div class="bar"><input id="q" placeholder="Search cards, sealed products, sets or sellers" value="${esc(F.q)}">
+  <select id="k"><option value="All">Cards and sealed</option><option value="card" ${F.prod==='card'?'selected':''}>Single cards</option><option value="sealed" ${F.prod==='sealed'?'selected':''}>Sealed products</option></select>
+  <select id="g"><option value="All">All listings</option><option value="sale" ${F.kind==='sale'?'selected':''}>Buy now</option><option value="trade" ${F.kind==='trade'?'selected':''}>Open to trades</option></select>
+  <select id="s"><option value="new">Newest</option><option value="low" ${F.sort==='low'?'selected':''}>Price: low to high</option><option value="high" ${F.sort==='high'?'selected':''}>Price: high to low</option></select></div><div id="gr"></div>`;
+  const draw=()=>{
+    let v=items.slice();const q=F.q.trim().toLowerCase();
+    if(q)v=v.filter(i=>[i.title,i.set,i.seller.name,i.productType].join(' ').toLowerCase().includes(q));
+    if(F.kind==='trade')v=v.filter(i=>i.type!=='sale');
+    if(F.kind==='sale')v=v.filter(i=>i.type!=='trade');
+    if(F.prod==='card')v=v.filter(i=>!isSealed(i));
+    if(F.prod==='sealed')v=v.filter(isSealed);
+    v.sort((a,b)=>F.sort==='low'?a.price-b.price:F.sort==='high'?b.price-a.price:new Date(b.created)-new Date(a.created));
+    $('#gr').innerHTML=v.length?`<div class="grid">${v.map(cardHtml).join('')}</div>`:'<div class="empty">Nothing listed here yet. Be the first: tap “Sell” to list a card or sealed product.</div>';
+    $('#gr').querySelectorAll('.card').forEach(c=>c.onclick=()=>openItem(items.find(i=>i.id===c.dataset.id)));
+  };
+  $('#q').oninput=e=>{F.q=e.target.value;draw()};
+  $('#k').onchange=e=>{F.prod=e.target.value;draw()};
+  $('#g').onchange=e=>{F.kind=e.target.value;draw()};
+  $('#s').onchange=e=>{F.sort=e.target.value;draw()};
+  draw();
+}
+function openItem(i){
+  if(!i)return;
+  const mineItem=me&&i.seller.id===me.id;
+  $('#modal').innerHTML=`<div class="modal" id="mo"><div class="mbox">
+  <div><img class="main" id="mainimg" src="${photo(i.photos[0])}" alt=""><div class="thumbs" style="margin-top:8px">${i.photos.map((u,n)=>`<img src="${photo(u)}" data-u="${photo(u)}" title="${['Front','Back',isSealed(i)?'Seal and corners':'Corners'][n]||'Extra'}" alt="" style="cursor:pointer">`).join('')}</div></div>
+  <div><h2 style="margin:0 0 4px">${esc(i.title)}</h2><div class="mute">${esc(i.game)}${i.set?' · '+esc(i.set):''}${isSealed(i)?' · Sealed product'+(i.productType?' ('+esc(i.productType)+')':''):''}</div>
+  <p class="price" style="font-size:24px;margin:12px 0 2px">${priceOf(i)}</p><div class="mute">Shipping: ${i.shipping>0?money(i.shipping):'Free'}</div>
+  <div style="margin:4px 0 12px">${i.type==='trade'?'':`<b>Total: ${money(i.price+i.shipping)}</b>`}${i.type!=='sale'?`<div class="mute">Open to trades${i.lookingFor?' · looking for: '+esc(i.lookingFor):''}. Each trader pays their own shipping.</div>`:''}</div>
+  <div class="mute">Condition: ${esc(i.condition)} · ${i.photos.length} condition photos (front, back, ${isSealed(i)?'seal and corners':'corners'})</div>
+  <div class="mute">Sold by: ${esc(i.seller.name)} ${ratingText(i.seller)}${i.location?' · '+esc(i.location):''}</div>
+  ${i.desc?`<p>${esc(i.desc)}</p>`:''}
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0">${mineItem?'<span class="mute">This is your listing.</span>':`<button class="btn pri" id="msgb">Message seller</button><button class="btn" id="saveb">${i.saved?'Saved ✓':'Save'}</button>${i.type!=='sale'?'<button class="btn" id="tradeb">Propose trade</button>':''}`}</div>
+  <div id="comp"></div><button class="btn" id="cl">Close</button></div></div></div>`;
+  $('#cl').onclick=closeM;$('#mo').onclick=e=>{if(e.target.id==='mo')closeM()};
+  document.querySelectorAll('.thumbs img').forEach(x=>x.onclick=()=>{$('#mainimg').src=x.dataset.u});
+  const mb=$('#msgb'),tb=$('#tradeb'),sb=$('#saveb');
+  if(me&&!mineItem)api('/listings/'+i.id+'/view',{method:'POST',body:{}}).catch(()=>{});
+  if(sb)sb.onclick=async()=>{if(!need())return;try{const on=!i.saved;await api('/listings/'+i.id+'/save',{method:'POST',body:{saved:on}});i.saved=on;sb.textContent=on?'Saved ✓':'Save'}catch(e){alert(e.message)}};
+  if(mb)mb.onclick=()=>{if(need())composer(i,'msg')};
+  if(tb)tb.onclick=()=>{if(need())composer(i,'trade')};
+}
+async function upload(file){const r=await api('/photos',{method:'POST',raw:await compress(file)});return r.id}
+async function composer(i,kind){
+  let own=[];
+  if(kind==='trade'){try{own=(await api('/listings?mine=1&game='+encodeURIComponent(i.game))).items.filter(x=>!x.sold)}catch{}}
+  $('#comp').innerHTML=`<div class="f" style="margin:10px 0">
+  ${kind==='trade'?`<label>Card or sealed product you’re offering<input id="co" maxlength="120" placeholder="e.g. Blastoise ex, Near Mint, or a sealed booster box"></label>
+  ${own.length?`<label>…or pick one of your listings<select id="cs"><option value="">None</option>${own.map(x=>`<option value="${esc(x.id)}">${esc(x.title)}</option>`).join('')}</select></label>`:''}
+  <label>Shipping cost for your card ($)<input id="cship" type="number" min="0" step="0.01" placeholder="0.00"></label>
+  <label>Estimated value of your card ($)<input id="cval" type="number" min="1" step="0.01" placeholder="Sets the trade deposit"></label>
+  <div class="row2"><label>Front photo of your card<input id="cpf" type="file" accept="image/*"></label><label>Back photo<input id="cpb" type="file" accept="image/*"></label></div>
+  <div class="mute">Photos are required unless you pick one of your listings (its photos are used).</div>`:''}
+  <label>${kind==='trade'?'Note (optional)':'Message'}<textarea id="ct" rows="3" maxlength="500"></textarea></label>
+  <div class="mute" id="cmsg"></div><button class="btn pri" id="csend">${kind==='trade'?'Send trade offer':'Send message'}</button></div>`;
+  const cs=$('#cs');if(cs)cs.onchange=e=>{const x=own.find(y=>y.id===e.target.value);if(x){$('#cship').value=x.shipping;$('#cval').value=x.value||'';if(!$('#co').value)$('#co').value=x.title}};
+  $('#csend').onclick=async()=>{
+    const g=id=>($('#'+id)||{}).value||'';const cm=t=>{$('#cmsg').textContent=t};
+    const payload={listingId:i.id,text:g('ct').trim()};
+    if(kind==='trade'){
+      const card=g('co').trim(),ship=parseFloat(g('cship')||'0'),sel=g('cs'),pf=$('#cpf').files[0],pb=$('#cpb').files[0];
+      if(!card)return cm('Say which card you’re offering.');
+      if(!sel&&!(pf&&pb))return cm('Add front and back photos of your card, or pick one of your listings.');
+      if(!sel&&!(parseFloat(g('cval'))>0))return cm('Enter the estimated value of your card.');
+      payload.offer={card,ship:Number.isFinite(ship)?ship:0,value:parseFloat(g('cval'))||undefined};
+    }else if(!payload.text)return cm('Type a message.');
+    $('#csend').disabled=true;
+    try{
+      if(kind==='trade'){
+        const sel=g('cs');
+        if(sel)payload.offer.ownListingId=sel;
+        else{cm('Uploading photos…');payload.offer.photos=[await upload($('#cpf').files[0]),await upload($('#cpb').files[0])]}
+      }
+      const d=await api('/threads',{method:'POST',body:payload});
+      closeM();tab='msgs';openT=d.id;render();
+    }catch(e){cm(e.message);$('#csend').disabled=false}
+  };
+}
+
+// ---------- selling ----------
+async function vSell(app){
+  if(!need())return signInPrompt(app);
+  app.innerHTML=`<div class="panel"><h2 style="margin-top:0">List a ${esc(hub)} card or sealed product</h2><div class="f">
+  <label>What are you selling?<select id="kind"><option value="card">Single card</option><option value="sealed">Sealed product</option></select></label>
+  <label id="ptw" hidden>Product type<select id="ptype">${PTYPES.map(c=>`<option>${esc(c)}</option>`).join('')}</select></label>
+  <label>Listing type<select id="ltype"><option value="sale">For sale</option><option value="both">For sale or trade</option><option value="trade">Trade only</option></select></label>
+    <label><span id="tl">Card name</span><input id="title" maxlength="90" placeholder="e.g. Charizard ex 199/165"></label>
+  <label>Set<input id="set" list="setlist" maxlength="60" autocomplete="off" placeholder="Search or pick a set"><datalist id="setlist">${setsFor(hub||'').map(s=>`<option value="${esc(s)}">`).join('')}</datalist></label>
+  <label>Condition<select id="cond">${CONDS.map(c=>`<option>${esc(c)}</option>`).join('')}</select></label>
+  <label id="lkw">Looking for in a trade (optional)<input id="look" maxlength="120" placeholder="e.g. any holo Umbreon"></label>
+  <label id="valw">Estimated market value ($, needed for trades)<input id="val" type="number" min="1" step="0.01" placeholder="Used to set trade deposits"></label>
+  <div class="row2"><label>Price ($, skip for trade only)<input id="price" type="number" min="0.5" step="0.01" placeholder="0.00"></label>
+  <label><span id="shl">Shipping cost ($, each trader pays their own on trades)</span><input id="ship" type="number" min="0" step="0.01" placeholder="0 = free shipping"></label></div>
+  <div class="msg" id="fee"></div>
+  <label>Ship-from location (optional)<input id="loc" maxlength="50" placeholder="City, Province/State"></label>
+  <label>Description (optional)<textarea id="desc" rows="3" maxlength="500"></textarea></label>
+  <div class="msg" id="phmsg">Condition photos are required: front, back and corners. Buyers see them, and they protect you if a condition dispute comes up.</div>
+  <div class="row2"><label>Front (required)<input id="pf" type="file" accept="image/*"></label><label>Back (required)<input id="pb" type="file" accept="image/*"></label></div>
+  <div class="row2"><label><span id="cl3">Corners and edges (required)</span><input id="pc" type="file" accept="image/*"></label><label>Extra photos (up to 3)<input id="px" type="file" accept="image/*" multiple></label></div>
+  <div class="mute" id="smsg"></div><button class="btn pri" id="go">Post listing</button></div></div>`;
+  const FEE=0.05;
+  api('/account').then(a=>{const s=a.profile.settings,l=$('#loc'),sh=$('#ship');if(l&&!l.value)l.value=s.defaultLocation||a.profile.location||'';if(sh&&!sh.value&&s.defaultShipping!=null){sh.value=s.defaultShipping;sh.dispatchEvent(new Event('input'))}}).catch(()=>{});
+  const kd=()=>{const s=$('#kind').value==='sealed';$('#ptw').hidden=!s;$('#tl').textContent=s?'Product name':'Card name';$('#title').placeholder=s?'e.g. Prismatic Evolutions Elite Trainer Box':'e.g. Charizard ex 199/165';$('#cl3').textContent=s?'Seal and corners (required)':'Corners and edges (required)';$('#phmsg').textContent=s?'Photos are required: front, back, and a close-up of the seal and corners. Buyers see them, and they protect you if a condition dispute comes up.':'Condition photos are required: front, back and corners. Buyers see them, and they protect you if a condition dispute comes up.';$('#cond').innerHTML=(s?CONDS_S:CONDS).map(c=>`<option>${esc(c)}</option>`).join('')};$('#kind').addEventListener('change',kd);kd();
+  const tg=()=>{const s=$('#ltype').value==='sale';$('#lkw').hidden=s;$('#valw').hidden=s;$('#shl').textContent=s?'Shipping cost ($)':'Shipping cost ($, each trader pays their own on trades)'};$('#ltype').addEventListener('change',tg);tg();
+  const fee=()=>{const ty=$('#ltype').value,p=parseFloat($('#price').value)||0,s=parseFloat($('#ship').value)||0;
+    $('#fee').innerHTML=ty==='trade'?'Trade-only listings have <b>no fee</b>. On trades, each trader pays their own shipping.':p>0?`Card price ${money(p)} − ${FEE*100}% fee ${money(p*FEE)} = <b>you keep ${money(p-p*FEE)}</b>. The ${money(s)} shipping you charge covers postage; we never take a cut of shipping or tax (demo rate, not charged yet).`:'Enter a price to see what you’ll keep.'};
+  ['price','ship','ltype'].forEach(id=>$('#'+id).oninput=fee);fee();
+  $('#go').onclick=async()=>{
+    const v=id=>$('#'+id).value,msg=t=>{$('#smsg').textContent=t};
+    const ty=v('ltype'),price=parseFloat(v('price')),ship=parseFloat(v('ship')||'0');
+    const req=['pf','pb','pc'].map(id=>$('#'+id).files[0]);
+    const sl=v('kind')==='sealed';
+    if(v('title').trim().length<2)return msg(sl?'Enter the product name.':'Enter the card name.');
+    if(!v('set').trim())return msg('Choose a set (pick “Other / not listed” if yours isn’t there).');
+    if(ty!=='trade'&&!(price>0))return msg('Enter a price greater than 0.');
+    if(!(ship>=0))return msg('Shipping can’t be negative.');
+    if(ty!=='sale'&&!(parseFloat(v('val'))>0)&&!(price>0))return msg('Enter an estimated value so trade deposits can be set.');
+    if(req.some(x=>!x))return msg('Add the front, back and corner photos.');
+    const files=[...req,...[...$('#px').files].slice(0,3)];
+    $('#go').disabled=true;
+    try{
+      const ids=[];
+      for(let k=0;k<files.length;k++){msg(`Uploading photo ${k+1} of ${files.length}…`);ids.push(await upload(files[k]))}
+      msg('Saving…');
+      await api('/listings',{method:'POST',body:{game:hub,kind:sl?'sealed':'card',productType:sl?v('ptype'):undefined,title:v('title'),set:v('set'),condition:v('cond'),type:ty,lookingFor:ty==='sale'?'':v('look'),
+        price:price>0?price:0,value:ty==='sale'?undefined:(parseFloat(v('val'))||undefined),shipping:ship,location:v('loc'),desc:v('desc'),photos:ids}});
+      tab='mine';render();
+    }catch(e){msg(e.message);$('#go').disabled=false}
+  };
+}
+async function vMine(app,t){
+  if(!need())return signInPrompt(app);
+  loading(app);
+  const {items}=await api('/listings?mine=1&game='+encodeURIComponent(hub));if(t!==rt)return;
+  const act=items.filter(i=>!i.sold),sum=k=>act.reduce((n,i)=>n+i.stats[k],0);
+  app.innerHTML=`<div style="max-width:640px;margin:0 auto"><h2 style="margin-top:0">My ${esc(hub)} listings</h2>${items.length?`<div class="tiles"><div class="tile"><span class="mute">Active</span><b>${act.length}</b></div><div class="tile"><span class="mute">Views</span><b>${sum('views')}</b></div><div class="tile"><span class="mute">Visitors</span><b>${sum('visitors')}</b></div><div class="tile"><span class="mute">Saves</span><b>${sum('saves')}</b></div></div>`:''}${items.length?items.map(i=>`<div class="li"><img src="${photo(i.photos[0])}" alt="">
+  <div class="g"><b>${esc(i.title)}</b><div class="mute">${priceOf(i)} + ${i.shipping>0?money(i.shipping)+' shipping':'free shipping'} · ${esc(i.condition)}${i.sold?' · <span style="color:var(--bad)">Sold</span>':''}</div>
+  <div class="stats"><span>${i.stats.views} view${i.stats.views===1?'':'s'}</span><span>${i.stats.visitors} visitor${i.stats.visitors===1?'':'s'}</span><span>${i.stats.saves} save${i.stats.saves===1?'':'s'}</span><span>${i.stats.conversations} conversation${i.stats.conversations===1?'':'s'}</span>${i.type!=='sale'?`<span>${i.stats.offers} trade offer${i.stats.offers===1?'':'s'}</span>`:''}<span>${i.stats.lastView?'Last visit '+dstr(i.stats.lastView):'No visits yet'}</span></div></div>
+  <div class="a"><button class="btn sm" data-a="sold" data-id="${esc(i.id)}" data-s="${i.sold?0:1}">${i.sold?'Relist':'Mark sold'}</button><button class="btn sm bad" data-a="del" data-id="${esc(i.id)}">Delete</button></div></div>`).join(''):'<div class="empty">You haven’t listed anything here yet.</div>'}</div>`;
+  app.querySelectorAll('[data-a]').forEach(b=>b.onclick=async()=>{
+    b.disabled=true;
+    try{
+      if(b.dataset.a==='del'){if(!confirm('Delete this listing?')){b.disabled=false;return}await api('/listings/'+b.dataset.id,{method:'DELETE',body:{}})}
+      else await api('/listings/'+b.dataset.id,{method:'PATCH',body:{sold:b.dataset.s==='1'}});
+      render();
+    }catch(e){alert(e.message);b.disabled=false}
+  });
+}
+
+
+// ---------- account, earnings, trades, saved ----------
+let acctTab='over';
+const dstr=t=>t?new Date(t).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}):'—';
+const chip=s=>`<span class="chip ${esc(s)}">${esc(s)}</span>`;
+const shipTxt=(trk,st,recv)=>trk?`${esc(trk)}${st?` · ${esc(st)}`:''}${recv?' · received':''}`:'<span class="mute">Not shipped</span>';
+async function vAccount(app,t){
+  if(!need())return signInPrompt(app);
+  loading(app);
+  const tabs=[['over','Overview'],['prof','Profile'],['set','Settings'],['pay','Payments'],['earn','Earnings'],['trades','Trades, shipping and deposits'],['saved','Saved']];
+  const [ac,ea,tr,mn]=await Promise.all([api('/account'),api('/account/earnings'),api('/account/trades'),api('/listings?mine=1')]);if(t!==rt)return;
+  const p=ac.profile,s=p.settings,E=ea.totals,sm=tr.summary,items=mn.items,active=items.filter(i=>!i.sold);
+  let body='';
+  if(acctTab==='over'){
+    const todo=[];
+    tr.trades.forEach(x=>{
+      const who=esc(x.with);
+      if(x.status==='accepted'&&x.myDeposit==='due')todo.push(`Place your deposit (${money(x.deposit)}) for the trade with ${who}.`);
+      if(x.status==='accepted'&&!x.myTracking)todo.push(`Ship your card to ${who} and add the tracking number${x.shipBy?' by '+dstr(x.shipBy):''}.`);
+      if(x.status==='accepted'&&x.theirTracking&&!x.myReceived)todo.push(`${who} shipped. Confirm when it arrives.`);
+    });
+    if(sm.pendingAnswer)todo.unshift(`${sm.pendingAnswer} trade offer${sm.pendingAnswer>1?'s are':' is'} waiting for your answer.`);
+    const st=a=>items.reduce((n,i)=>n+(i.sold?0:i.stats[a]),0);
+    body=`<div class="tiles">
+      <div class="tile"><span class="mute">Earned (after fees)</span><b>${money(E.net)}</b></div>
+      <div class="tile"><span class="mute">Last 30 days</span><b>${money(E.net30)}</b><span class="mute">${E.sold30} sold</span></div>
+      <div class="tile"><span class="mute">Active listings</span><b>${active.length}</b></div>
+      <div class="tile"><span class="mute">Views</span><b>${st('views')}</b></div>
+      <div class="tile"><span class="mute">Saves</span><b>${st('saves')}</b></div>
+      <div class="tile"><span class="mute">Open trades</span><b>${sm.open}</b></div>
+      <div class="tile"><span class="mute">Deposits held</span><b>${money(sm.depositsHeld)}</b></div>
+      <div class="tile"><span class="mute">To ship</span><b>${sm.toShip}</b></div></div>
+      <h3>Needs your attention</h3>${todo.length?`<div class="todo">${todo.map(x=>`<div>${x}</div>`).join('')}</div>`:'<div class="mute">Nothing waiting on you.</div>'}`;
+  }else if(acctTab==='prof'){
+    body=`<div class="panel" style="max-width:560px;margin:0"><div class="f" id="acctf">
+      <label>Full name<input id="pn" maxlength="40" value="${esc(p.name)}"></label>
+      <label>Location (optional)<input id="pl" maxlength="50" placeholder="City, Province/State" value="${esc(p.location||'')}"></label>
+      <label>About you (optional)<textarea id="pb2" rows="3" maxlength="300" placeholder="What you collect and trade">${esc(p.bio||'')}</textarea></label>
+      <div class="mute">Member since ${dstr(p.since)}</div>
+      <div class="mute" id="pm2"></div><button class="btn pri" id="ps">Save profile</button></div></div>`;
+  }else if(acctTab==='set'){
+    const sw=(id,t,d,on)=>`<label class="sw"><span>${t}<small>${d}</small></span><input type="checkbox" id="${id}" ${on?'checked':''}></label>`;
+    body=`<div class="panel" style="max-width:560px;margin:0" id="acctf"><h3 style="margin-top:0">Notifications</h3>
+      ${sw('n_notifyMessages','Messages','New messages from buyers and sellers',s.notifyMessages)}${sw('n_notifyOffers','Trade offers','Offers, acceptances and declines',s.notifyOffers)}${sw('n_notifyShipping','Shipping updates','Tracking added, delivered, receipt confirmed',s.notifyShipping)}${sw('n_notifyDigest','Weekly summary','Views, saves and earnings',s.notifyDigest)}
+      <div class="mute" style="margin:6px 0 14px">Preferences are saved to your account.</div>
+      <h3>Selling</h3>
+      ${sw('vac','Vacation mode','Hides all your listings from the marketplace until you turn it off',p.vacation)}
+      <div class="f" style="margin-top:12px"><label>Default ship-from location<input id="dl" maxlength="50" placeholder="City, Province/State" value="${esc(s.defaultLocation||'')}"></label>
+      <label>Default shipping cost ($)<input id="ds" type="number" min="0" step="0.01" placeholder="0.00" value="${s.defaultShipping==null?'':esc(s.defaultShipping)}"></label>
+      <div class="mute" id="sm"></div><button class="btn pri" id="ss">Save selling defaults</button></div></div>`;
+  }else if(acctTab==='pay'){
+    body=`<div class="panel" style="max-width:640px;margin:0" id="acctf"><div class="msg">Only a nickname and the last 4 digits are kept here, so never type a full card or account number. Deposits and payouts are a demo ledger: no real money moves until a payment provider such as Stripe is connected.</div>
+      <h3 style="margin-top:0">Saved methods</h3>
+      ${ac.payments.length?ac.payments.map(m=>`<div class="pm"><div><b>${esc(m.label)}</b> <span class="mute">${esc(m.type)}${m.last4?' · ending '+esc(m.last4):''}</span>${m.payout?' <span class="chip accepted">Payout method</span>':''}</div><div style="display:flex;gap:6px">${m.payout?'':`<button class="btn sm" data-pd="${esc(m.id)}">Make payout method</button>`}<button class="btn sm bad" data-px="${esc(m.id)}">Remove</button></div></div>`).join(''):'<div class="mute" style="margin-bottom:8px">No payment methods yet.</div>'}
+      <h3>Add a method</h3><div class="f">
+      <label>Type<select id="pt"><option>Credit or debit card</option><option>Bank account (payouts)</option><option>PayPal</option></select></label>
+      <label>Nickname<input id="pnn" maxlength="30" placeholder="e.g. Personal Visa"></label>
+      <label>Last 4 digits (optional)<input id="pl4" inputmode="numeric" maxlength="4" placeholder="1234"></label>
+      <div class="mute" id="pmm"></div><button class="btn pri" id="pa">Add method</button></div></div>`;
+  }else if(acctTab==='earn'){
+    body=`<div class="tiles"><div class="tile"><span class="mute">Sales</span><b>${money(E.gross)}</b></div>
+      <div class="tile"><span class="mute">Fees (5%)</span><b>${money(E.fees)}</b></div>
+      <div class="tile"><span class="mute">You keep</span><b>${money(E.net)}</b></div>
+      <div class="tile"><span class="mute">Last 30 days</span><b>${money(E.net30)}</b></div></div>
+      ${ea.items.length?`<div class="tw"><table class="tbl"><thead><tr><th>Item</th><th>Sold</th><th class="n">Price</th><th class="n">Fee</th><th class="n">You keep</th></tr></thead><tbody>${ea.items.map(r=>`<tr><td>${esc(r.title)}<div class="mute">${esc(r.game)}${r.kind==='sealed'?' · Sealed':''}</div></td><td>${dstr(r.soldAt)}</td><td class="n">${money(r.gross)}</td><td class="n">${money(r.fee)}</td><td class="n">${money(r.net)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No sales yet. Items you mark as sold appear here.</div>'}
+      <div class="mute" style="margin-top:10px">Shipping you charge covers postage and isn’t counted as earnings. Trade-only listings carry no fee.</div>`;
+  }else if(acctTab==='trades'){
+    body=`<div class="tiles"><div class="tile"><span class="mute">Open trades</span><b>${sm.open}</b></div><div class="tile"><span class="mute">Deposits held</span><b>${money(sm.depositsHeld)}</b></div><div class="tile"><span class="mute">To ship</span><b>${sm.toShip}</b></div><div class="tile"><span class="mute">To confirm</span><b>${sm.toConfirm}</b></div></div>
+      ${tr.trades.length?`<div class="tw"><table class="tbl"><thead><tr><th>Trade</th><th>With</th><th>Status</th><th>Deposits</th><th>Your shipment</th><th>Their shipment</th></tr></thead><tbody>${tr.trades.map(x=>`<tr><td>${esc(x.iOffered)} <span class="mute">for</span> ${esc(x.theyOffered)}<div class="mute">${dstr(x.at)}${x.status==='accepted'&&x.shipBy?' · ship by '+dstr(x.shipBy):''}</div></td><td>${esc(x.with)}</td><td>${chip(x.status)}</td><td>${money(x.deposit)}<div class="mute">You: ${esc(x.myDeposit)} · Them: ${esc(x.theirDeposit)}</div></td><td>${shipTxt(x.myTracking,x.myTrackStatus,x.myReceived)}</td><td>${shipTxt(x.theirTracking,x.theirTrackStatus,x.theirReceived)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No trades yet. Offers you send or receive show up here with their deposits and shipping.</div>'}
+      <div class="mute" style="margin-top:10px">Open a trade from Messages to ship, confirm receipt or place a deposit.</div>`;
+  }else{
+    const sv=(await api('/saves')).items;if(t!==rt)return;
+    body=sv.length?sv.map(i=>`<div class="li" data-open="${esc(i.id)}" style="cursor:pointer"><img src="${photo(i.photos[0])}" alt=""><div class="g"><b>${esc(i.title)}</b><div class="mute">${esc(i.game)} · ${priceOf(i)} · ${esc(i.seller.name)}${i.sold?' · Sold':''}</div></div><div class="a"><button class="btn sm" data-unsave="${esc(i.id)}">Unsave</button></div></div>`).join(''):'<div class="empty">Nothing saved yet. Tap “Save” on a listing to keep it here.</div>';
+    app._saved=sv;
+  }
+  app.innerHTML=`<div class="sect"><h2 style="margin-top:0">Account <span class="mute">· ${esc(p.name)}</span></h2><div class="at">${tabs.map(x=>`<button class="btn ${x[0]===acctTab?'on':''}" data-at="${x[0]}">${x[1]}</button>`).join('')}</div>${body}</div>`;
+  app.querySelectorAll('[data-at]').forEach(b=>b.onclick=()=>{acctTab=b.dataset.at;render()});
+  const flash=(id,t)=>{const e=$('#'+id);if(e)e.textContent=t};
+  const patch=b=>api('/account',{method:'PATCH',body:b});
+  if($('#ps'))$('#ps').onclick=async()=>{const name=$('#pn').value.trim();if(name.length<2)return flash('pm2','Enter your full name.');$('#ps').disabled=true;
+    try{await patch({name,location:$('#pl').value.trim(),bio:$('#pb2').value.trim()});await loadMe();flash('pm2','Saved.')}catch(e){flash('pm2',e.message)}$('#ps').disabled=false};
+  ['notifyMessages','notifyOffers','notifyShipping','notifyDigest'].forEach(k=>{const e=$('#n_'+k);if(e)e.onchange=()=>patch({settings:{[k]:e.checked}}).catch(()=>{e.checked=!e.checked})});
+  if($('#vac'))$('#vac').onchange=e=>patch({vacation:e.target.checked}).catch(()=>{e.target.checked=!e.target.checked});
+  if($('#ss'))$('#ss').onclick=async()=>{const ds=$('#ds').value.trim();if(ds!==''&&!(parseFloat(ds)>=0))return flash('sm','Shipping can’t be negative.');
+    try{await patch({settings:{defaultLocation:$('#dl').value.trim(),defaultShipping:ds===''?null:parseFloat(ds)}});flash('sm','Saved.')}catch(e){flash('sm',e.message)}};
+  if($('#pa'))$('#pa').onclick=async()=>{const label=$('#pnn').value.trim(),l4=$('#pl4').value.trim();
+    if(!label)return flash('pmm','Give it a nickname.');if(l4&&!/^\d{4}$/.test(l4))return flash('pmm','Last 4 digits must be exactly 4 numbers.');
+    try{await api('/account/payment-methods',{method:'POST',body:{type:$('#pt').value,label,last4:l4}});render()}catch(e){flash('pmm',e.message)}};
+  app.querySelectorAll('[data-pd]').forEach(b=>b.onclick=()=>api('/account/payment-methods/'+b.dataset.pd+'/payout',{method:'POST',body:{}}).then(render).catch(e=>alert(e.message)));
+  app.querySelectorAll('[data-px]').forEach(b=>b.onclick=()=>api('/account/payment-methods/'+b.dataset.px,{method:'DELETE',body:{}}).then(render).catch(e=>alert(e.message)));
+  app.querySelectorAll('[data-unsave]').forEach(b=>b.onclick=e=>{e.stopPropagation();api('/listings/'+b.dataset.unsave+'/save',{method:'POST',body:{saved:false}}).then(render).catch(()=>{})});
+  app.querySelectorAll('[data-open]').forEach(r=>r.onclick=()=>{const it=(app._saved||[]).find(i=>i.id===r.dataset.open);if(!it)return;hub=it.game;tab='browse';location.hash='#'+encodeURIComponent(it.game);setTimeout(()=>openItem(it),80)});
+}
+
+// ---------- messages and trades ----------
+function offerHtml(m){
+  const o=m.offer,th=cur.thread,mine=cur.me,isSeller=mine===th.seller.id;
+  const bN=th.buyer.name,sN=th.seller.name,them=isSeller?bN:sN;
+  const st=o.status,day=d=>new Date(d).toLocaleDateString(undefined,{month:'short',day:'numeric'});
+  let btns='';
+  if(st==='pending')btns=isSeller?`<button class="btn sm pri" data-act="accept" data-m="${m.id}">Accept</button> <button class="btn sm bad" data-act="decline" data-m="${m.id}">Decline</button>`:`<button class="btn sm" data-act="withdraw" data-m="${m.id}">Withdraw</button>`;
+  const myDep=isSeller?o.sellerDeposit:o.buyerDeposit,thDep=isSeller?o.buyerDeposit:o.sellerDeposit;
+  const rule=`${money(o.deposit)} each (25% of the higher card value, $5 minimum, $500 cap)`;
+  let box='';
+  if(st==='pending')box=`<div class="mute" style="margin-top:6px">If accepted, each trader puts up a ${rule} deposit. It’s returned when both deliveries are confirmed.</div>`;
+  else if(st!=='declined'&&st!=='withdrawn'){
+    const myT=isSeller?o.sellerTracking:o.buyerTracking,thT=isSeller?o.buyerTracking:o.sellerTracking,myR=isSeller?o.sellerReceived:o.buyerReceived;
+    let body=`<div class="mute">Deposit: ${rule}. Held until both deliveries are confirmed. Demo only: no real money moves.</div>
+      <div>You: <span class="chip ${myDep}">${myDep}</span> · ${esc(them)}: <span class="chip ${thDep}">${thDep}</span></div>`;
+    if(st==='accepted'||st==='completed'){
+      const A=o.myAddress||{};
+      const af=(k,l,w)=>`<input data-ad="${k}" data-m="${m.id}" placeholder="${l}" maxlength="80" value="${esc(A[k]||(k==='country'?'CA':''))}" style="${w||''}">`;
+      const manual=`<div class="mute" style="margin-top:6px">Or enter a tracking number from a label you bought elsewhere (not carrier-verified):</div><input data-trk="${m.id}" maxlength="40" placeholder="Tracking number"> <button class="btn sm" data-act="ship" data-m="${m.id}">Mark shipped</button>`;
+      let mineHtml;
+      if(myT)mineHtml=`<span class="chip accepted">You shipped</span> <span class="mute">${esc(myT)}</span>${(isSeller?o.sellerVerified:o.buyerVerified)?` <span class="chip accepted">carrier-verified (${esc((isSeller?o.sellerCarrier:o.buyerCarrier)||'')})</span>`:''}${o.myLabel?` <a href="${esc(o.myLabel)}" target="_blank" rel="noopener">Open label</a>`:''}`;
+      else if(myDep!=='held')mineHtml=`<button class="btn sm pri" data-act="deposit" data-m="${m.id}">Pay ${money(o.deposit)} deposit (demo)</button> <span class="mute">before shipping</span>`;
+      else{
+        const rs=rateCache[m.id];
+        const step=!o.hasMyAddress?`<div class="mute">Add your shipping address so a label can be printed (US or Canada). It is only used for labels and is deleted when the trade ends. The other trader never sees it.</div>
+          <div class="row2">${af('name','Full name')}${af('phone','Phone (optional)')}</div>${af('street1','Street address')}${af('street2','Apt, suite (optional)')}
+          <div class="row2">${af('city','City')}${af('state','State / province')}</div><div class="row2">${af('zip','ZIP / postal code')}${af('country','Country (US or CA)')}</div>
+          <button class="btn sm pri" data-act="address" data-m="${m.id}">Save address</button>`
+        :!o.hasTheirAddress?`<span class="mute">Address saved. Waiting for ${esc(them)} to add theirs.</span>`
+        :rs?`<div class="mute">Choose a courier service:</div>${rs.map((r,i)=>`<label style="display:block"><input type="radio" name="rate-${m.id}" value="${esc(r.id)}" ${i===0?'checked':''}> ${esc(r.carrier)} ${esc(r.service)} · ${money(r.amount)}${r.days?` · ~${r.days} days`:''}</label>`).join('')}<button class="btn sm pri" data-act="label" data-m="${m.id}">Buy label (you pay the courier)</button>`
+        :`<button class="btn sm pri" data-act="rates" data-m="${m.id}">Get courier rates</button>`;
+        mineHtml=`${step}${manual}`;
+      }
+      const thV=isSeller?o.buyerVerified:o.sellerVerified,thS=isSeller?o.buyerTrack:o.sellerTrack;
+      const theirHtml=thT?`<span class="chip accepted">${esc(them)} shipped</span> <span class="mute">${esc(thT)}</span>${thV?` <span class="chip accepted">carrier-verified</span>${thS?` <span class="mute">status: ${esc(thS.toLowerCase().replace(/_/g,' '))}</span>`:''}`:' <span class="mute">(tracking not verified)</span>'}`:`<span class="mute">Waiting for ${esc(them)} to ship</span>`;
+      const rc=myR?'<span class="chip accepted">You confirmed receipt</span>':(thT?`<button class="btn sm pri" data-act="recv" data-m="${m.id}">I received my card</button>`:'');
+      const rated=o.ratings.find(r=>r.rater===mine);
+      const end=st==='completed'?(rated?`<div class="mute">You rated this trade ★ ${rated.stars}. Deposits were returned.</div>`:`<div class="mute">Both deliveries confirmed. Deposits returned.</div><div>Rate ${esc(them)}: <select data-rs="${m.id}">${[5,4,3,2,1].map(n=>`<option value="${n}">${'★'.repeat(n)}</option>`).join('')}</select> <button class="btn sm" data-act="rate" data-m="${m.id}">Submit rating</button></div>`)
+        :`<div class="mute">Ship by ${o.shipBy?day(o.shipBy):'the deadline'} or the trade is cancelled. If only one trader ships, the other forfeits their deposit to them. A missing receipt confirmation is assumed after 72 hours.</div><div><button class="btn sm bad" data-act="dispute" data-m="${m.id}">Report a problem</button></div>`;
+      body+=`<div class="f" style="gap:6px"><div>Your shipment:</div>${mineHtml}</div><div>Their shipment: ${theirHtml}</div>${rc?`<div>${rc}</div>`:''}${end}`;
+    }else if(st==='cancelled'){
+      body+=o.buyerDeposit==='forfeited'?`<div><b>Cancelled.</b> ${esc(bN)} missed the ship-by date and forfeited their deposit to ${esc(sN)}.</div>`
+        :o.sellerDeposit==='forfeited'?`<div><b>Cancelled.</b> ${esc(sN)} missed the ship-by date and forfeited their deposit to ${esc(bN)}.</div>`
+        :'<div><b>Cancelled.</b> Nobody shipped by the deadline. Any deposits were returned.</div>';
+    }else if(st==='disputed')body+='<div><b>Disputed.</b> Deposits stay held until it is resolved. (Moderator resolution isn’t built in this demo.)</div>';
+    box=`<div class="trk"><b>Trade deposit and tracker</b>${body}</div>`;
+  }
+  return `<div class="of"><b>Trade offer</b> <span class="chip ${st}">${st}</span><br>${esc(m.from===mine?'You':bN)} offered <b>${esc(o.card)}</b> for <b>${esc(o.theirTitle)}</b>.<br>
+  <div class="thumbs" style="margin:6px 0">${o.photos.map(u=>`<img src="${photo(u)}" alt="">`).join('')}</div>
+  <span class="mute">Shipping: each trader pays their own. ${esc(bN)} pays ${money(o.buyerShip)}, ${esc(sN)} pays ${money(o.sellerShip)}. No balancing payment.</span>
+  ${m.text?`<div style="margin-top:6px">${esc(m.text)}</div>`:''}<div style="margin-top:8px">${btns}</div>${box}</div>`;
+}
+async function loadMsgs(){
+  const d=await api('/threads'+(hub?'?game='+encodeURIComponent(hub):''));
+  tl=d.threads;
+  if(!tl.some(x=>x.id===openT))openT=tl[0]?tl[0].id:null;
+  cur=openT?await api('/threads/'+openT):null;
+  const n=d.threads.filter(x=>x.unread&&x.id!==openT).length;
+  $('#mb').textContent=n?`Messages (${n})`:'Messages';
+  return JSON.stringify([tl.map(x=>[x.id,x.last,x.lastAt]),cur&&cur.messages.map(m=>[m.id,m.offer&&[m.offer.status,m.offer.buyerTracking,m.offer.sellerTracking,m.offer.buyerReceived,m.offer.sellerReceived,m.offer.buyerDeposit,m.offer.sellerDeposit,m.offer.hasMyAddress,m.offer.hasTheirAddress,m.offer.buyerVerified,m.offer.sellerVerified,m.offer.buyerTrack,m.offer.sellerTrack,m.offer.ratings.length]])]);
+}
+function drawMsgs(){
+  const app=$('#app'),focus=document.activeElement&&document.activeElement.id==='rt';
+  const list=tl.map(x=>`<div class="ti ${x.id===openT?'on':''}" data-k="${x.id}"><b>${x.unread&&x.id!==openT?'<span class="dot"></span>':''}${esc(x.title)}</b><span class="mute">${esc(x.other.name)}${hub?'':' · '+esc(x.game)} · ${esc(x.last)}</span></div>`).join('');
+  let conv='<div class="empty">Open a listing and tap “Message seller” or “Propose trade” to start a conversation.</div>';
+  if(cur){const th=cur.thread,other=cur.me===th.buyer.id?th.seller:th.buyer;
+    conv=`<div class="cv"><div><b>${esc(th.title)}</b> <span class="mute">· with ${esc(other.name)} ${ratingText(other)}</span></div>
+    <div class="bx" id="bx">${cur.messages.map(m=>m.kind==='offer'?offerHtml(m):`<div class="bb ${m.from===cur.me?'me':''}">${esc(m.text)}</div>`).join('')}</div>
+    <div class="sn"><textarea id="rt" rows="2" maxlength="500" placeholder="Write a message…">${esc(mtext)}</textarea><button class="btn pri" id="rs">Send</button></div></div>`}
+  app.innerHTML=`<div style="max-width:1000px;margin:0 auto"><div class="msg">Only you and the other trader can read this conversation. Never share your full address in a message; agree on shipping details after the trade is accepted.</div></div><div class="mg"><div class="tl">${list||'<div class="mute">No conversations yet.</div>'}</div>${conv}</div>`;
+  app.querySelectorAll('.ti').forEach(e=>e.onclick=async()=>{openT=e.dataset.k;mtext='';try{sig=await loadMsgs();drawMsgs()}catch(x){alert(x.message)}});
+  const rt_=$('#rt');
+  if(rt_){
+    rt_.oninput=()=>{mtext=rt_.value};
+    if(focus){rt_.focus();rt_.setSelectionRange(rt_.value.length,rt_.value.length)}
+    $('#rs').onclick=async()=>{const text=rt_.value.trim();if(!text)return;$('#rs').disabled=true;
+      try{await api('/threads/'+openT+'/messages',{method:'POST',body:{text}});mtext='';sig=await loadMsgs();drawMsgs()}catch(e){alert(e.message);$('#rs').disabled=false}};
+  }
+  app.querySelectorAll('[data-act]').forEach(b=>b.onclick=async()=>{
+    const body={action:b.dataset.act};
+    if(body.action==='ship'){body.trk=app.querySelector(`[data-trk="${b.dataset.m}"]`).value}
+    if(body.action==='rate'){body.stars=+app.querySelector(`[data-rs="${b.dataset.m}"]`).value}
+    if(body.action==='dispute'&&!confirm('Report a problem with this trade? Deposits stay held until it is resolved.'))return;
+    if(body.action==='address'){body.address={};app.querySelectorAll(`[data-ad][data-m="${b.dataset.m}"]`).forEach(i=>{body.address[i.dataset.ad]=i.value})}
+    if(body.action==='label'){const r=app.querySelector(`input[name="rate-${b.dataset.m}"]:checked`);if(!r)return;body.rateId=r.value}
+    b.disabled=true;
+    try{
+      const res=await api('/threads/'+openT+'/offers/'+b.dataset.m,{method:'POST',body});
+      if(res&&res.rates)rateCache[b.dataset.m]=res.rates;
+      if(body.action==='label'||body.action==='address')delete rateCache[b.dataset.m];
+      sig=await loadMsgs();drawMsgs();
+    }catch(e){alert(e.message);b.disabled=false}
+  });
+  const bx=$('#bx');if(bx)bx.scrollTop=bx.scrollHeight;
+}
+async function vMsgs(app,t){
+  if(!need())return signInPrompt(app);
+  loading(app);
+  const s=await loadMsgs();if(t!==rt)return;
+  sig=s;drawMsgs();
+}
+async function poll(){
+  if(!me||document.hidden)return;
+  try{
+    if(tab==='msgs'){
+      const a=document.activeElement;
+      if(a&&a.tagName==='INPUT')return;
+      const s=await loadMsgs();if(tab==='msgs'&&s!==sig){sig=s;drawMsgs()}
+    }else{
+      const d=await api('/threads');const n=d.threads.filter(x=>x.unread).length;$('#mb').textContent=n?`Messages (${n})`:'Messages';
+    }
+  }catch{}
+}
+
+// ---------- community board ----------
+async function vBoard(app,t){
+  loading(app);
+  const {posts}=await api('/board?game='+encodeURIComponent(hub));if(t!==rt)return;
+  const day=d=>new Date(d).toLocaleDateString();
+  app.innerHTML=`<div style="max-width:720px;margin:0 auto"><div class="panel" style="margin-bottom:14px"><div class="f"><b>Start a discussion in the ${esc(hub)} community</b>
+  <input id="bt" maxlength="90" placeholder="Title, e.g. Looking for a mint copy of…"><textarea id="bx2" rows="3" maxlength="600" placeholder="What’s on your mind?"></textarea>
+  <div class="mute" id="bm"></div><button class="btn pri" id="bp">Post</button></div></div>
+  ${posts.length?posts.map(p=>`<div class="panel" style="margin-bottom:12px"><b>${esc(p.title)}</b> <span class="mute">· ${esc(p.author.name)} · ${day(p.at)}</span>${me&&p.author.id===me.id?` <button class="btn sm bad" data-dp="${p.id}">Delete</button>`:''}
+  <p style="white-space:pre-wrap;margin:8px 0">${esc(p.text)}</p>
+  ${p.replies.map(r=>`<div class="mute" style="border-left:3px solid var(--line);padding-left:10px;margin:6px 0"><b>${esc(r.author.name)}</b>: ${esc(r.text)}</div>`).join('')}
+  <div class="sn" style="margin-top:8px"><input data-r="${p.id}" maxlength="300" placeholder="Reply…" style="flex:1;${FIELD}"><button class="btn sm" data-rb="${p.id}">Reply</button></div></div>`).join(''):'<div class="empty">No posts yet. Start the first conversation.</div>'}</div>`;
+  $('#bp').onclick=async()=>{
+    if(!need())return;
+    const title=$('#bt').value.trim(),text=$('#bx2').value.trim();
+    if(!title||!text)return $('#bm').textContent='Add a title and some text.';
+    $('#bp').disabled=true;
+    try{await api('/board',{method:'POST',body:{game:hub,title,text}});render()}catch(e){$('#bm').textContent=e.message;$('#bp').disabled=false}
+  };
+  app.querySelectorAll('[data-dp]').forEach(b=>b.onclick=async()=>{if(!confirm('Delete this post?'))return;try{await api('/board/'+b.dataset.dp,{method:'DELETE',body:{}});render()}catch(e){alert(e.message)}});
+  app.querySelectorAll('[data-rb]').forEach(b=>b.onclick=async()=>{
+    if(!need())return;
+    const text=app.querySelector(`[data-r="${b.dataset.rb}"]`).value.trim();if(!text)return;
+    b.disabled=true;try{await api('/board/'+b.dataset.rb+'/replies',{method:'POST',body:{text}});render()}catch(e){alert(e.message);b.disabled=false}
+  });
+}
+
+// ---------- want list ----------
+async function vWants(app,t){
+  if(!need())return signInPrompt(app);
+  loading(app);
+  const d=await api('/wants?game='+encodeURIComponent(hub));if(t!==rt)return;
+  app.innerHTML=`<div style="max-width:720px;margin:0 auto"><div class="panel" style="margin-bottom:14px"><div class="f"><b>Your ${esc(hub)} want list</b>
+  <div class="mute">Add cards you’re hunting for. We flag matching listings, and tell you when someone wants a card you’ve listed.</div>
+  <div class="sn"><input id="wi" maxlength="80" placeholder="Card name, e.g. Umbreon VMAX" style="flex:1;${FIELD}"><button class="btn pri" id="wa">Add</button></div><div class="mute" id="wm"></div>
+  ${d.list.map(w=>`<div class="li" style="margin:0"><div class="g"><b>${esc(w.card)}</b></div><button class="btn sm bad" data-wd="${w.id}">Remove</button></div>`).join('')||'<div class="mute">No cards on your list yet.</div>'}</div></div>
+  <h3>Matches for you</h3>${d.matches.length?d.matches.map(x=>`<div class="li" data-id="${x.id}" style="cursor:pointer"><img src="${photo(x.photos[0])}" alt=""><div class="g"><b>${esc(x.title)}</b><div class="mute">You want “${esc(x.want)}” · ${esc(x.seller.name)} · ${priceOf(x)}${x.type!=='sale'?' · open to trades':''}</div></div></div>`).join(''):'<div class="mute">No listings match your want list yet. They will show up here as they appear.</div>'}
+  <h3 style="margin-top:18px">People who want your cards</h3>${d.interest.length?d.interest.map(x=>`<div class="li"><div class="g"><b>${esc(x.wanter)}</b> wants “${esc(x.card)}”<div class="mute">Matches your listing: ${esc(x.title)}</div></div></div>`).join(''):'<div class="mute">Nobody is hunting for your listed cards yet.</div>'}</div>`;
+  $('#wa').onclick=async()=>{const card=$('#wi').value.trim();if(!card)return;$('#wa').disabled=true;try{await api('/wants',{method:'POST',body:{game:hub,card}});render()}catch(e){$('#wm').textContent=e.message;$('#wa').disabled=false}};
+  app.querySelectorAll('[data-wd]').forEach(b=>b.onclick=async()=>{try{await api('/wants/'+b.dataset.wd,{method:'DELETE',body:{}});render()}catch(e){alert(e.message)}});
+  app.querySelectorAll('.li[data-id]').forEach(e=>e.onclick=()=>openItem(d.matches.find(x=>x.id===e.dataset.id)));
+}
+
+(async function init(){
+  hub=hubFromHash();
+  await Promise.all([loadMe(),loadStats()]);
+  render();
+  setInterval(poll,15000);
+})();
+
+
+/* ---- live background: drifting colour fields and floating card shapes, tinted by the current community ---- */
+(function(){
+  const cv=document.getElementById('bgfx');if(!cv)return;
+  const cx=cv.getContext('2d');if(!cx)return;
+  const reduce=matchMedia('(prefers-reduced-motion:reduce)');
+  const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+  let cur=[hex('#f9db30'),hex('#0d0d0d')],W=0,H=0,dpr=1,mx=.5,my=.5,t0=performance.now();
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+  const cards=Array.from({length:16},()=>({x:Math.random(),y:Math.random(),s:rnd(46,120),r:rnd(-.6,.6),vr:rnd(-.05,.05),v:rnd(.008,.022),d:rnd(.3,1),k:Math.random()}));
+  const blobs=[0,1,2].map(i=>({ph:i*2.1,sp:rnd(.05,.09),rad:rnd(.38,.55)}));
+  function size(){dpr=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cx.setTransform(dpr,0,0,dpr,0,0)}
+  const dark=()=>{const r=document.documentElement,t=r.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme:dark)').matches};
+  function target(){const h=(typeof HUBS!=='undefined'&&typeof hub!=='undefined')?HUBS.find(x=>x.g===hub):null;return h?[hex(h.c[0]),hex(h.c[1])]:[hex('#f9db30'),hex('#0d0d0d')]}
+  const mix=(a,b,k)=>a.map((v,i)=>v+(b[i]-v)*k);
+  const rgba=(c,a)=>`rgba(${c[0]|0},${c[1]|0},${c[2]|0},${a})`;
+  function rr(x,y,w,h,r){cx.beginPath();cx.moveTo(x+r,y);cx.arcTo(x+w,y,x+w,y+h,r);cx.arcTo(x+w,y+h,x,y+h,r);cx.arcTo(x,y+h,x,y,r);cx.arcTo(x,y,x+w,y,r);cx.closePath()}
+  function frame(now){
+    const t=(now-t0)/1000,tg=target(),dk=dark();
+    cur=[mix(cur[0],tg[0],.04),mix(cur[1],tg[1],.04)];
+    cx.clearRect(0,0,W,H);
+    const ba=dk?.30:.20;
+    blobs.forEach((b,i)=>{
+      const c=cur[i%2],x=W*(.5+.38*Math.sin(t*b.sp+b.ph)+(mx-.5)*.06),y=H*(.45+.34*Math.cos(t*b.sp*1.3+b.ph)+(my-.5)*.06),r=Math.max(W,H)*b.rad;
+      const g=cx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,rgba(c,ba));g.addColorStop(1,rgba(c,0));
+      cx.fillStyle=g;cx.fillRect(0,0,W,H);
+    });
+    cards.forEach(c=>{
+      const y=((c.y-t*c.v)%1.2+1.2)%1.2,x=c.x+Math.sin(t*.15+c.k*6)*.02+(mx-.5)*.03*c.d;
+      const w=c.s*c.d,h=w*1.4,px=x*W,py=y*H-.1*H,rot=c.r+Math.sin(t*.2+c.k*9)*.15+c.vr*t*.3;
+      cx.save();cx.translate(px,py);cx.rotate(rot);
+      const col=cur[c.k>.5?0:1];
+      cx.fillStyle=rgba(col,dk?.10:.07);cx.strokeStyle=rgba(col,dk?.35:.22);cx.lineWidth=1.2;
+      rr(-w/2,-h/2,w,h,w*.09);cx.fill();cx.stroke();
+      rr(-w*.38,-h*.38,w*.76,h*.5,w*.05);cx.strokeStyle=rgba(col,dk?.22:.14);cx.stroke();
+      cx.restore();
+    });
+  }
+  let raf=0;
+  function loop(n){frame(n);raf=requestAnimationFrame(loop)}
+  function start(){cancelAnimationFrame(raf);size();if(reduce.matches){cur=target();frame(performance.now())}else raf=requestAnimationFrame(loop)}
+  addEventListener('resize',()=>{size();if(reduce.matches)frame(performance.now())});
+  addEventListener('pointermove',e=>{mx=e.clientX/Math.max(1,W);my=e.clientY/Math.max(1,H)},{passive:true});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelAnimationFrame(raf);else start()});
+  reduce.addEventListener&&reduce.addEventListener('change',start);
+  addEventListener('hashchange',()=>{if(reduce.matches){cur=target();frame(performance.now())}});
+  start();
+})();
+</script>
+</body>
+</html>

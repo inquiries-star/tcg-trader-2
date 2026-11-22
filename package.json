@@ -1,0 +1,13 @@
+{
+  "name": "tcg-trader",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "TCG Trader: marketplace and trading platform for trading card games (Netlify Functions + Netlify Database + Netlify Identity + Blobs)",
+  "dependencies": {
+    "@netlify/blobs": "latest",
+    "@netlify/database": "latest",
+    "@netlify/functions": "latest",
+    "@netlify/identity": "latest"
+  }
+}

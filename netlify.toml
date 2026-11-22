@@ -1,0 +1,11 @@
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+# Note: [[headers]] here only affect static files, not function responses.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "same-origin"
+    X-Frame-Options = "DENY"
